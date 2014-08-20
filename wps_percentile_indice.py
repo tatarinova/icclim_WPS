@@ -23,7 +23,7 @@ map_indice_perc = {
                     'R99TOT': 99,
 }
 
-MaxRequestLimit_bytes = 500000000
+MaxRequestLimit_bytes = 450000000
 
     
 class ProcessPercentileIndice(WPSProcess):
