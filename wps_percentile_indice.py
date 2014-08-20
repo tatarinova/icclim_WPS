@@ -1,7 +1,5 @@
 from pywps.Process import WPSProcess
 
-import sys
-sys.path.insert(0, '/home/globc/tatarinova/codes/LIBTEST/icclim_github/icclim_callback_perc/icclim')
 import icclim
 
 
@@ -139,4 +137,4 @@ class ProcessPercentileIndice(WPSProcess):
                             time_range=time_range_study_period,
                             out_file=out_file_name,
                             N_lev=level,
-                            callback=defaultCallback2)
+                            callback=defaultCallback)
