@@ -1,10 +1,15 @@
 from pywps.Process import WPSProcess
 
+import sys
+sys.path.insert(0, '/home/globc/tatarinova/codes/LIBTEST/icclim_github/icclim_callback_perc/icclim')
 import icclim
 
 
 def defaultCallback(message,percentage):
     print ("[%s] %d" % (message,percentage))
+
+def defaultCallback2(message,percentage):
+    print ("[%s] %0.2f" % (message,percentage))
 
 map_indice_perc = {
                     'TG10p': 10,
@@ -86,9 +91,9 @@ class ProcessPercentileIndice(WPSProcess):
                                                title = 'Number of level (if 4D variable)',
                                                default = None)
         
-        self.callbackIn = self.addLiteralInput(identifier = 'callback', 
-                                               title = 'Callback print',
-                                               default = defaultCallback)
+        #self.callbackIn = self.addLiteralInput(identifier = 'callback', 
+        #                                       title = 'Callback print',
+        #                                       default = defaultCallback)
 
         self.fileOut = self.addComplexOutput(identifier = 'output_file',
                                              title = 'Output netCDF file',
@@ -112,7 +117,7 @@ class ProcessPercentileIndice(WPSProcess):
         slice_mode = self.sliceModeIn.getValue()
         out_file_name = self.outputFileNameIn.getValue()
         level = self.NLevelIn.getValue()
-        callback = self.callbackIn.getValue()
+        #callback = self.callbackIn.getValue()
 
                 
         perc_dict = icclim.get_percentile_dict(in_files=in_files_base_period,
@@ -121,9 +126,10 @@ class ProcessPercentileIndice(WPSProcess):
                                                window_width=5,
                                                time_range=time_range_base_period,
                                                only_leap_years=False,
-                                               verbose=True,
+                                               verbose=False,
                                                save_to_file=out_file,
-                                               transfer_limit_bytes=max_request)
+                                               transfer_limit_bytes=max_request,
+                                               callback = defaultCallback2)
         
         icclim.indice_perc(in_files=in_files_study_period,
                             var=var_name,
@@ -133,4 +139,4 @@ class ProcessPercentileIndice(WPSProcess):
                             time_range=time_range_study_period,
                             out_file=out_file_name,
                             N_lev=level,
-                            callback=callback)
+                            callback=defaultCallback2)
