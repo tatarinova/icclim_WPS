@@ -1,4 +1,4 @@
-import wps_compound_indice0 as ProcessToTest
+import wps_compound_indice as ProcessToTest
 from pywps.Process import WPSProcess
 from datetime import datetime
 
