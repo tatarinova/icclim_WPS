@@ -2,9 +2,6 @@ from pywps.Process import WPSProcess
 
 import icclim
 
-
-def defaultCallback(message,percentage):
-    print ("[%s] %d" % (message,percentage))
     
 class ProcessMultivarIndice(WPSProcess):
 
@@ -89,7 +86,7 @@ class ProcessMultivarIndice(WPSProcess):
                         time_range=time_range,
                         out_file=out_file_name,
                         N_lev=level,
-                        callback=callback)
+                        callback=icclim.callback.defaultCallback)
         
 
         print 'Success!!!'

@@ -2,9 +2,6 @@ from pywps.Process import WPSProcess
 
 import icclim
 
-
-def defaultCallback(message,percentage):
-    print ("[%s] %d" % (message,percentage))
     
 class ProcessSimpleIndice(WPSProcess):
 
@@ -50,10 +47,6 @@ class ProcessSimpleIndice(WPSProcess):
         self.NLevelIn = self.addLiteralInput(identifier = 'NLevel', 
                                                title = 'Number of level (if 4D variable)',
                                                default = None)
-        
-        self.callbackIn = self.addLiteralInput(identifier = 'callback', 
-                                               title = 'Callback print',
-                                               default = defaultCallback)
 
         self.fileOut = self.addComplexOutput(identifier = 'output_file',
                                              title = 'Output netCDF file',
@@ -71,7 +64,7 @@ class ProcessSimpleIndice(WPSProcess):
         out_file_name = self.outputFileNameIn.getValue()
         level = self.NLevelIn.getValue()
         thresh = self.thresholdIn.getValue()
-        callback = self.callbackIn.getValue()
+
 
         icclim.indice(in_files = files,
                         var = var,
@@ -81,7 +74,7 @@ class ProcessSimpleIndice(WPSProcess):
                         out_file = out_file_name,
                         threshold = thresh,
                         N_lev = level,
-                        callback = defaultCallback)
+                        callback = icclim.callback.defaultCallback)
         
 
         print 'Success!!!'

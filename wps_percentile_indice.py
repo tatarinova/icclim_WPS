@@ -2,13 +2,6 @@ from pywps.Process import WPSProcess
 
 import icclim
 
-
-def defaultCallback(message,percentage):
-    print ("[%s] %d" % (message,percentage))
-
-def defaultCallback2(message,percentage):
-    print ("[%s] %0.2f" % (message,percentage))
-
 map_indice_perc = {
                     'TG10p': 10,
                     'TX10p': 10, 
@@ -88,10 +81,6 @@ class ProcessPercentileIndice(WPSProcess):
         self.NLevelIn = self.addLiteralInput(identifier = 'NLevel', 
                                                title = 'Number of level (if 4D variable)',
                                                default = None)
-        
-        #self.callbackIn = self.addLiteralInput(identifier = 'callback', 
-        #                                       title = 'Callback print',
-        #                                       default = defaultCallback)
 
         self.fileOut = self.addComplexOutput(identifier = 'output_file',
                                              title = 'Output netCDF file',
@@ -117,6 +106,12 @@ class ProcessPercentileIndice(WPSProcess):
         level = self.NLevelIn.getValue()
         #callback = self.callbackIn.getValue()
 
+        
+        if indice_name in ['R75p', 'R75TOT', 'R95p', 'R95TOT', 'R99p', 'R99TOT',]:
+            precip = True
+        else:
+            precip = False
+        
                 
         perc_dict = icclim.get_percentile_dict(in_files=in_files_base_period,
                                                var_name=var_name,
@@ -124,10 +119,11 @@ class ProcessPercentileIndice(WPSProcess):
                                                window_width=5,
                                                time_range=time_range_base_period,
                                                only_leap_years=False,
-                                               verbose=False,
                                                save_to_file=out_file,
                                                transfer_limit_bytes=max_request,
-                                               callback = defaultCallback2)
+                                               callback = icclim.callback.defaultCallback2,
+                                               callback_percentage_total = 50,
+                                               precipitation = precip)
         
         icclim.indice_perc(in_files=in_files_study_period,
                             var=var_name,
@@ -137,4 +133,5 @@ class ProcessPercentileIndice(WPSProcess):
                             time_range=time_range_study_period,
                             out_file=out_file_name,
                             N_lev=level,
-                            callback=defaultCallback)
+                            callback=icclim.callback.defaultCallback2,
+                            callback_percentage_total = 50)
