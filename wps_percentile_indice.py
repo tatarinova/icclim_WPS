@@ -1,6 +1,11 @@
 from pywps.Process import WPSProcess
 
 import icclim
+import icclim.util.callback as callback
+#cb = callback.defaultCallback
+cb = callback.defaultCallback2
+
+transfer_limit_Mb = 500
 
 map_indice_perc = {
                     'TG10p': 10,
@@ -19,7 +24,22 @@ map_indice_perc = {
                     'R99TOT': 99,
 }
 
-MaxRequestLimit_bytes = 450000000
+map_indice_perc_precipitation = {
+                    'TG10p': False,
+                    'TX10p': False, 
+                    'TN10p': False,
+                    'TG90p': False,
+                    'TX90p': False,
+                    'TN90p': False,
+                    'WSDI': False,
+                    'CSDI': False,
+                    'R75p': True,
+                    'R75TOT': True,
+                    'R95p': True,
+                    'R95TOT': True,
+                    'R99p': True,
+                    'R99TOT': True,
+}
 
     
 class ProcessPercentileIndice(WPSProcess):
@@ -36,7 +56,10 @@ class ProcessPercentileIndice(WPSProcess):
        
         self.filesBasePeriodIn = self.addLiteralInput(identifier = 'filesBasePeriod',
                                                title = 'Input netCDF files list (base period)',
-                                               default = ['http://opendap.nmdc.eu/knmi/thredds/dodsC/IS-ENES/TESTSETS/tasmax_day_EC-EARTH_rcp26_r8i1p1_20760101-21001231.nc'])
+                                               default = ['http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tas_day_EC-EARTH_rcp26_r8i1p1_20060101-20251231.nc',
+                                                          'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tas_day_EC-EARTH_rcp26_r8i1p1_20260101-20501231.nc',
+                                                          'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tas_day_EC-EARTH_rcp26_r8i1p1_20510101-20751231.nc',
+                                                          'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tas_day_EC-EARTH_rcp26_r8i1p1_20760101-21001231.nc'])
         
         self.timeRangeBasePeriodIn = self.addLiteralInput(identifier = 'timeRangeBasePeriod', 
                                                title = 'Time range (base period)',
@@ -45,17 +68,20 @@ class ProcessPercentileIndice(WPSProcess):
                                                 
         self.varNameIn = self.addLiteralInput(identifier = 'varName',
                                                title = 'Variable name to process',
-                                               default = 'tasmax')
+                                               default = 'tas')
         
         
         self.filesStudyPeriodIn = self.addLiteralInput(identifier = 'filesStudyPeriod',
                                                title = 'Input netCDF files list (study period)',
-                                               default = ['http://opendap.nmdc.eu/knmi/thredds/dodsC/IS-ENES/TESTSETS/tasmax_day_EC-EARTH_rcp26_r8i1p1_20510101-20751231.nc'])
+                                               default = ['http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tas_day_EC-EARTH_rcp26_r8i1p1_20060101-20251231.nc',
+                                                          'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tas_day_EC-EARTH_rcp26_r8i1p1_20260101-20501231.nc',
+                                                          'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tas_day_EC-EARTH_rcp26_r8i1p1_20510101-20751231.nc',
+                                                          'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tas_day_EC-EARTH_rcp26_r8i1p1_20760101-21001231.nc'])
         
         
         self.indiceNameIn = self.addLiteralInput(identifier = 'indiceName',
                                                title = 'Indice name',
-                                               default = 'TX90p')
+                                               default = 'TG90p')
         
         self.leapNonLeapYearsIn = self.addLiteralInput(identifier = 'leapNonLeapYears',
                                                title = 'Leap or non-leap years',
@@ -90,48 +116,52 @@ class ProcessPercentileIndice(WPSProcess):
 
     def execute(self):
         
+        indice_name = self.indiceNameIn.getValue()
+        
+        percentile = map_indice_perc[indice_name]
+        precip_bool_value = map_indice_perc_precipitation[indice_name]
+        
         in_files_base_period = self.filesBasePeriodIn.getValue()
         time_range_base_period = self.timeRangeBasePeriodIn.getValue()
         var_name = self.varNameIn.getValue()
-        indice_name = self.indiceNameIn.getValue()
-        percentile = map_indice_perc[indice_name]
+                
         leap_nonleap_years = self.leapNonLeapYearsIn.getValue()
         out_file = self.outputFileNamePercentilesIn.getValue()
-        max_request = MaxRequestLimit_bytes # in bytes
         
         in_files_study_period = self.filesStudyPeriodIn.getValue()
         time_range_study_period = self.timeRangeStudyPeriodIn.getValue()
         slice_mode = self.sliceModeIn.getValue()
         out_file_name = self.outputFileNameIn.getValue()
         level = self.NLevelIn.getValue()
-        #callback = self.callbackIn.getValue()
 
+
+      
+        pd = icclim.get_percentile_dict(in_files=in_files_base_period,
+                                        var_name=var_name,
+                                        percentile=percentile,                                        
+                                        window_width=5,                                        
+                                        time_range=time_range_base_period,
+                                        only_leap_years=leap_nonleap_years,
+                                        save_to_file=out_file,
+                                        transfer_limit_Mbytes=transfer_limit_Mb,
+                                        callback=cb,
+                                        callback_percentage_start_value=0,
+                                        callback_percentage_total=50,
+                                        precipitation=precip_bool_value)
+    
+       
         
-        if indice_name in ['R75p', 'R75TOT', 'R95p', 'R95TOT', 'R99p', 'R99TOT',]:
-            precip = True
-        else:
-            precip = False
+        icclim.indice(indice_name=indice_name,
+                        in_files=in_files_study_period,
+                        var_name=var_name,
+                        slice_mode=slice_mode,
+                        time_range=time_range_study_period,
+                        out_file=out_file_name,
+                        N_lev=level,
+                        transfer_limit_Mbytes=transfer_limit_Mb,
+                        callback=cb,
+                        callback_percentage_start_value=50,
+                        callback_percentage_total=50,
+                        percentile_dict=pd)
         
-                
-        perc_dict = icclim.get_percentile_dict(in_files=in_files_base_period,
-                                               var_name=var_name,
-                                               percentile=percentile,
-                                               window_width=5,
-                                               time_range=time_range_base_period,
-                                               only_leap_years=False,
-                                               save_to_file=out_file,
-                                               transfer_limit_bytes=max_request,
-                                               callback = icclim.callback.defaultCallback2,
-                                               callback_percentage_total = 50,
-                                               precipitation = precip)
         
-        icclim.indice_perc(in_files=in_files_study_period,
-                            var=var_name,
-                            indice_name=indice_name,
-                            percentile_dict=perc_dict,
-                            slice_mode=slice_mode,
-                            time_range=time_range_study_period,
-                            out_file=out_file_name,
-                            N_lev=level,
-                            callback=icclim.callback.defaultCallback2,
-                            callback_percentage_total = 50)

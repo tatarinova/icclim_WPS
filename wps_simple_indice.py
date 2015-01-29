@@ -1,6 +1,11 @@
 from pywps.Process import WPSProcess
 
 import icclim
+import icclim.util.callback as callback
+#cb = callback.defaultCallback
+cb = callback.defaultCallback2
+
+transfer_limit_Mb = 500
 
     
 class ProcessSimpleIndice(WPSProcess):
@@ -17,7 +22,10 @@ class ProcessSimpleIndice(WPSProcess):
        
         self.filesIn = self.addLiteralInput(identifier = 'files',
                                                title = 'Input netCDF files list',
-                                               default = ['http://opendap.nmdc.eu/knmi/thredds/dodsC/IS-ENES/TESTSETS/tasmax_day_EC-EARTH_rcp26_r8i1p1_20760101-21001231.nc'])
+                                               default = ['http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tasmax_day_EC-EARTH_rcp26_r8i1p1_20060101-20251231.nc',
+                                                          'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tasmax_day_EC-EARTH_rcp26_r8i1p1_20260101-20501231.nc',
+                                                          'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tasmax_day_EC-EARTH_rcp26_r8i1p1_20510101-20751231.nc',
+                                                          'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tasmax_day_EC-EARTH_rcp26_r8i1p1_20760101-21001231.nc'])
         
                                                 
         self.varNameIn = self.addLiteralInput(identifier = 'varName',
@@ -30,7 +38,7 @@ class ProcessSimpleIndice(WPSProcess):
         
         self.sliceModeIn = self.addLiteralInput(identifier = 'sliceMode',
                                                title = 'Slice mode (temporal grouping to applay for calculations)',
-                                               default = 'year')
+                                               default = 'JJA')
 
         self.timeRangeIn = self.addLiteralInput(identifier = 'timeRange', 
                                                title = 'Time range',
@@ -64,17 +72,29 @@ class ProcessSimpleIndice(WPSProcess):
         out_file_name = self.outputFileNameIn.getValue()
         level = self.NLevelIn.getValue()
         thresh = self.thresholdIn.getValue()
-
-
-        icclim.indice(in_files = files,
-                        var = var,
-                        indice_name = indice_name,
-                        slice_mode = slice_mode,
-                        time_range = time_range,
-                        out_file = out_file_name,
-                        threshold = thresh,
-                        N_lev = level,
-                        callback = icclim.callback.defaultCallback)
+      
         
-
+        icclim.indice(indice_name=indice_name,
+                        in_files=files,
+                        var_name=var,
+                        slice_mode=slice_mode,
+                        time_range=time_range,
+                        out_file=out_file_name,
+                        threshold=thresh,
+                        N_lev=level,
+                        transfer_limit_Mbytes=transfer_limit_Mb,
+                        callback=cb,
+                        callback_percentage_start_value=0,
+                        callback_percentage_total=100,
+                        percentile_dict=None,
+                        in_files2=None,
+                        var_name2=None,
+                        percentile_dict2=None)
+        
+        
+        
+        
+        
+        
+        
         print 'Success!!!'

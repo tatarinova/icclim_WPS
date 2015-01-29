@@ -1,7 +1,11 @@
 from pywps.Process import WPSProcess
 
 import icclim
+import icclim.util.callback as callback
+#cb = callback.defaultCallback
+cb = callback.defaultCallback2
 
+transfer_limit_Mb = 500
     
 class ProcessMultivarIndice(WPSProcess):
 
@@ -17,7 +21,10 @@ class ProcessMultivarIndice(WPSProcess):
        
         self.filesTasmaxIn = self.addLiteralInput(identifier = 'filesTasmax',
                                                title = 'Input netCDF files list (daily max temperature)',
-                                               default = ['http://opendap.nmdc.eu/knmi/thredds/dodsC/IS-ENES/TESTSETS/tasmax_day_EC-EARTH_rcp26_r8i1p1_20760101-21001231.nc'])
+                                               default = ['http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tasmax_day_EC-EARTH_rcp26_r8i1p1_20060101-20251231.nc',
+                                                          'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tasmax_day_EC-EARTH_rcp26_r8i1p1_20260101-20501231.nc',
+                                                          'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tasmax_day_EC-EARTH_rcp26_r8i1p1_20510101-20751231.nc',
+                                                          'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tasmax_day_EC-EARTH_rcp26_r8i1p1_20760101-21001231.nc'])
         
                                                 
         self.varTasmaxIn = self.addLiteralInput(identifier = 'varTasmax',
@@ -27,7 +34,10 @@ class ProcessMultivarIndice(WPSProcess):
         
         self.filesTasminIn = self.addLiteralInput(identifier = 'filesTasmin',
                                                title = 'Input netCDF files list (daily min temperature)',
-                                               default = ['http://opendap.nmdc.eu/knmi/thredds/dodsC/IS-ENES/TESTSETS/tasmin_day_EC-EARTH_rcp26_r8i1p1_20760101-21001231.nc'])
+                                               default = ['http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tasmin_day_EC-EARTH_rcp26_r8i1p1_20060101-20251231.nc',
+                                                          'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tasmin_day_EC-EARTH_rcp26_r8i1p1_20260101-20501231.nc',
+                                                          'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tasmin_day_EC-EARTH_rcp26_r8i1p1_20510101-20751231.nc',
+                                                          'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tasmin_day_EC-EARTH_rcp26_r8i1p1_20760101-21001231.nc'])
         
                                                 
         self.varTasminIn = self.addLiteralInput(identifier = 'varTasmin',
@@ -36,7 +46,7 @@ class ProcessMultivarIndice(WPSProcess):
         
         self.indiceNameIn = self.addLiteralInput(identifier = 'indiceName',
                                                title = 'Indice name',
-                                               default = 'DTR')
+                                               default = 'ETR')
         
         self.sliceModeIn = self.addLiteralInput(identifier = 'sliceMode',
                                                title = 'Slice mode (temporal grouping to applay for calculations)',
@@ -53,10 +63,6 @@ class ProcessMultivarIndice(WPSProcess):
         self.NLevelIn = self.addLiteralInput(identifier = 'NLevel', 
                                                title = 'Number of level (if 4D variable)',
                                                default = None)
-        
-        self.callbackIn = self.addLiteralInput(identifier = 'callback', 
-                                               title = 'Callback print',
-                                               default = defaultCallback)
 
         self.fileOut = self.addComplexOutput(identifier = 'output_file',
                                              title = 'Output netCDF file',
@@ -75,18 +81,22 @@ class ProcessMultivarIndice(WPSProcess):
         time_range = self.timeRangeIn.getValue()
         out_file_name = self.outputFileNameIn.getValue()
         level = self.NLevelIn.getValue()
-        callback = self.callbackIn.getValue()
 
-        icclim.indice_multivar(in_files1=files_tasmax,
-                        var1 = var_tasmax,
-                        in_files2=files_tasmin,
-                        var2=var_tasmin,                    
-                        indice_name=indice_name,                    
-                        slice_mode=slice_mode,
-                        time_range=time_range,
-                        out_file=out_file_name,
-                        N_lev=level,
-                        callback=icclim.callback.defaultCallback)
+       
         
-
+        icclim.indice(indice_name=indice_name,
+            in_files=files_tasmax,
+            var_name=var_tasmax,            
+            slice_mode=slice_mode,
+            time_range=time_range,
+            out_file=out_file_name, 
+            N_lev=level,            
+            transfer_limit_Mbytes=transfer_limit_Mb,
+            callback=cb,
+            callback_percentage_start_value=0,
+            callback_percentage_total=100,
+            in_files2=files_tasmin,
+            var_name2=var_tasmin)
+        
+        
         print 'Success!!!'
