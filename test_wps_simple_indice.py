@@ -88,5 +88,8 @@ map_indice_file = {
 p1.timeRangeIn.default = [datetime(2080,01,01), datetime(2085,12,31)]
 #p1.indiceNameIn.default = indice
 #p1.filesIn.default = map_indice_file[indice]
+p1.filesIn.default = ['http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tasmax_day_EC-EARTH_rcp26_r8i1p1_20760101-21001231.nc']
+
+print p1.filesIn.default
 
 p1.execute()
