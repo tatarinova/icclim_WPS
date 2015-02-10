@@ -58,28 +58,37 @@ class ProcessPercentileIndice(WPSProcess):
                             storeSupported = True,
                             statusSupported = True,
                             grassLocation =False)
+
+
+        self.indiceNameIn = self.addLiteralInput(identifier = 'indiceName',
+                                               title = 'Indice name',
+                                               type="String",
+                                               default = 'TG90p')
+        self.indiceNameIn.values = ['TG10p', 'TX10p', 'TN10p', 'TG90p', 'TX90p', 'TN90p', 'WSDI', 'CSDI', 'R75p', 'R75TOT', 'R95p', 'R95TOT', 'R99p', 'R99TOT']
+
+
+        self.sliceModeIn = self.addLiteralInput(identifier = 'sliceMode',
+                                               title = 'Slice mode (temporal grouping to applay for calculations)',
+                                               type="String",
+                                               default = 'year')
+        self.sliceModeIn.values = ["year","month","ONDJFM","AMJJAS","DJF","MAM","JJA","SON"]
+        
        
         self.filesBasePeriodIn = self.addLiteralInput(identifier = 'filesBasePeriod',
-                                               title = 'Input netCDF files list (base period)',
+                                               title = 'Input netCDF files list (base (reference) period)',
                                                abstract="application/netcdf",
                                                type=type("S"),
                                                minOccurs=0,
                                                maxOccurs=1024,
-                                               default = 'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tas_day_EC-EARTH_rcp26_r8i1p1_20060101-20251231.nc' +
-                                                          'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tas_day_EC-EARTH_rcp26_r8i1p1_20260101-20501231.nc' +
-                                                          'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tas_day_EC-EARTH_rcp26_r8i1p1_20510101-20751231.nc' +
-                                                          'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tas_day_EC-EARTH_rcp26_r8i1p1_20760101-21001231.nc')
+                                               default = 'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tas_day_EC-EARTH_rcp26_r8i1p1_20060101-20251231.nc,' +
+                                                          'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tas_day_EC-EARTH_rcp26_r8i1p1_20260101-20501231.nc,' +
+                                                          'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tas_day_EC-EARTH_rcp26_r8i1p1_20510101-20751231.nc,' +
+                                                          'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tas_day_EC-EARTH_rcp26_r8i1p1_20760101-21001231.nc,')
         
         self.timeRangeBasePeriodIn = self.addLiteralInput(identifier = 'timeRangeBasePeriod', 
                                                title = 'Time range of base (reference) period, e.g. 1961-01-01/1990-12-31',
                                                type="String",
-                                               default = None)
-        
-                                                
-        self.varNameIn = self.addLiteralInput(identifier = 'varName',
-                                               title = 'Variable name to process',
-                                               type="String",
-                                               default = 'tas')
+                                               default = None)                                                 
         
         
         self.filesStudyPeriodIn = self.addLiteralInput(identifier = 'filesStudyPeriod',
@@ -88,40 +97,36 @@ class ProcessPercentileIndice(WPSProcess):
                                                type=type("S"),
                                                minOccurs=0,
                                                maxOccurs=1024,
-                                               default = 'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tas_day_EC-EARTH_rcp26_r8i1p1_20060101-20251231.nc' +
-                                                          'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tas_day_EC-EARTH_rcp26_r8i1p1_20260101-20501231.nc' +
-                                                          'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tas_day_EC-EARTH_rcp26_r8i1p1_20510101-20751231.nc' +
-                                                          'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tas_day_EC-EARTH_rcp26_r8i1p1_20760101-21001231.nc')
-        
-        
-        self.indiceNameIn = self.addLiteralInput(identifier = 'indiceName',
-                                               title = 'Indice name',
-                                               type="String",
-                                               default = 'TG90p')
-        self.indiceNameIn.values = ['TG10p', 'TX10p', 'TN10p', 'TG90p', 'TX90p', 'TN90p', 'WSDI', 'CSDI', 'R75p', 'R75TOT', 'R95p', 'R95TOT', 'R99p', 'R99TOT']
-        
-        self.leapNonLeapYearsIn = self.addLiteralInput(identifier = 'leapNonLeapYears',
-                                               title = 'Leap or non-leap years',
-                                               type="String",
-                                               default = False)
-        
-        self.outputFileNamePercentilesIn = self.addLiteralInput(identifier = 'outputFileNamePercentiles', 
-                                               title = 'Name of output file to save the dictionary with percentile values',
-                                               type="String",
-                                               default = './percentiles.pkl')
-                
-                
-        self.sliceModeIn = self.addLiteralInput(identifier = 'sliceMode',
-                                               title = 'Slice mode (temporal grouping to applay for calculations)',
-                                               type="String",
-                                               default = 'year')
-        self.sliceModeIn.values = ["year","month","ONDJFM","AMJJAS","DJF","MAM","JJA","SON"]
+                                               default = 'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tas_day_EC-EARTH_rcp26_r8i1p1_20060101-20251231.nc,' +
+                                                          'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tas_day_EC-EARTH_rcp26_r8i1p1_20260101-20501231.nc,' +
+                                                          'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tas_day_EC-EARTH_rcp26_r8i1p1_20510101-20751231.nc,' +
+                                                          'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tas_day_EC-EARTH_rcp26_r8i1p1_20760101-21001231.nc,')
 
         self.timeRangeStudyPeriodIn = self.addLiteralInput(identifier = 'timeRangeStudyPeriod', 
                                                title = 'Time range, e.g. 2010-01-01/2012-12-31',
                                                type="String",
                                                default = None)
         
+        
+        self.varNameIn = self.addLiteralInput(identifier = 'varName',
+                                               title = 'Variable name to process',
+                                               type="String",
+                                               default = 'tas')
+
+        
+        self.leapNonLeapYearsIn = self.addLiteralInput(identifier = 'leapNonLeapYears',
+                                               title = 'Method for computing a percentile value for the calendar day of February 29th',
+                                               type="String",
+                                               default = "take all years (leap + non-leap)")
+        self.leapNonLeapYearsIn.values = ["take all years (leap + non-leap)", "take only leap years"]
+        
+        
+        self.outputFileNamePercentilesIn = self.addLiteralInput(identifier = 'outputFileNamePercentiles', 
+                                               title = 'Name of output file to save the dictionary with percentile values',
+                                               type="String",
+                                               default = './percentiles.pkl')
+                
+                        
         self.outputFileNameIn = self.addLiteralInput(identifier = 'outputFileName', 
                                                title = 'Name of output netCDF file',
                                                type="String",
@@ -134,8 +139,8 @@ class ProcessPercentileIndice(WPSProcess):
 
         self.opendapURL = self.addLiteralOutput(identifier = "opendapURL",title = "opendapURL");
         
-    #def callback(self,message,percentage):
-    #    self.status.set("%s" % str(message),str(percentage));
+    def callback(self,message,percentage):
+        self.status.set("%s" % str(message),str(percentage));
 
     def execute(self):
         
@@ -155,9 +160,9 @@ class ProcessPercentileIndice(WPSProcess):
         var_name = self.varNameIn.getValue()
                 
         leap_nonleap_years = self.leapNonLeapYearsIn.getValue()
+        
         out_file = self.outputFileNamePercentilesIn.getValue()
         
-        in_files_study_period = self.filesStudyPeriodIn.getValue()
         
         in_files_study_period = []
         in_files_study_period.extend(self.filesStudyPeriodIn.getValue())
@@ -171,9 +176,7 @@ class ProcessPercentileIndice(WPSProcess):
         
         if (level == "None"):
             level = None
-            
-        if (leap_nonleap_years == 'False'):
-            leap_nonleap_years = False
+           
           
         if (time_range_base_period == "None"):
             time_range_base_period = None
@@ -189,7 +192,12 @@ class ProcessPercentileIndice(WPSProcess):
             startdate = dateutil.parser.parse(time_range_study_period.split("/")[0])
             stopdate  = dateutil.parser.parse(time_range_study_period.split("/")[1])
             time_range_study_period = [startdate,stopdate]
-            
+        
+        if (leap_nonleap_years == "take all years (leap + non-leap)"):
+            leap_nonleap_years = False
+        else:
+            leap_nonleap_years = True 
+        
         
         home = expanduser("~")
         
@@ -198,15 +206,15 @@ class ProcessPercentileIndice(WPSProcess):
         pathToAppendToOutputDirectory = "/WPS_"+self.identifier+"_" + datetime.now().strftime("%Y%m%dT%H%M%SZ")
         
         """ URL output path """
-        fileOutURL  = os.environ['POF_OUTPUT_URL']  + pathToAppendToOutputDirectory+"/"
+        fileOutURL  = os.environ['PORTAL_OUTPUT_URL']  + pathToAppendToOutputDirectory+"/"
         
         """ Internal output path"""
-        fileOutPath = os.environ['POF_OUTPUT_PATH']  + pathToAppendToOutputDirectory +"/"
+        fileOutPath = os.environ['PORTAL_OUTPUT_PATH']  + pathToAppendToOutputDirectory +"/"
 
         """ Create output directory """
         mkdir_p(fileOutPath)
         
-        self.callback("Processing input list: "+str(files),0)
+        self.status.set("Processing input list: " + str(in_files_study_period), 0)
         
         
       

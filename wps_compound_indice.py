@@ -33,28 +33,47 @@ class ProcessCompoundIndice(WPSProcess):
                             storeSupported = True,
                             statusSupported = True,
                             grassLocation =False)
-       
+        
+        
+        self.indiceNameIn = self.addLiteralInput(identifier = 'indiceName',
+                                                title = 'Indice name',
+                                                type="String",
+                                                default = 'CW')
+        self.indiceNameIn.values = ['CD', 'CW', 'WD', 'WW']
+        
+        
+        self.sliceModeIn = self.addLiteralInput(identifier = 'sliceMode',
+                                               title = 'Slice mode (temporal grouping to applay for calculations)',
+                                               type="String",
+                                               default = 'year')
+        self.sliceModeIn.values = ["year","month","ONDJFM","AMJJAS","DJF","MAM","JJA","SON"]        
+        
         self.filesBasePeriodTemperatureIn = self.addLiteralInput(identifier = 'filesBasePeriodTemperature',
-                                                title = 'Input netCDF files list (base period), daily mean temperature',
+                                                title = 'Input netCDF files list (base (reference) period), daily mean temperature',
                                                 abstract="application/netcdf",
                                                 type=type("S"),
                                                 minOccurs=0,
                                                 maxOccurs=1024,
-                                                default = 'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tas_day_EC-EARTH_rcp26_r8i1p1_20060101-20251231.nc' +
-                                                           'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tas_day_EC-EARTH_rcp26_r8i1p1_20260101-20501231.nc' +
-                                                           'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tas_day_EC-EARTH_rcp26_r8i1p1_20510101-20751231.nc' +
-                                                           'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tas_day_EC-EARTH_rcp26_r8i1p1_20760101-21001231.nc')
+                                                default = 'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tas_day_EC-EARTH_rcp26_r8i1p1_20060101-20251231.nc,' +
+                                                           'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tas_day_EC-EARTH_rcp26_r8i1p1_20260101-20501231.nc,' +
+                                                           'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tas_day_EC-EARTH_rcp26_r8i1p1_20510101-20751231.nc,' +
+                                                           'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tas_day_EC-EARTH_rcp26_r8i1p1_20760101-21001231.nc,')
         
         self.filesBasePeriodPrecipitationIn = self.addLiteralInput(identifier = 'filesBasePeriodPrecipitation',
-                                                title = 'Input netCDF files list (base period), daily precipitation amount',
+                                                title = 'Input netCDF files list (base (reference) period), daily precipitation amount',
                                                 abstract="application/netcdf",
                                                 type=type("S"),
                                                 minOccurs=0,
                                                 maxOccurs=1024,                                                
-                                                default = 'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/pr_day_EC-EARTH_rcp26_r8i1p1_20060101-20251231.nc' +
-                                                           'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/pr_day_EC-EARTH_rcp26_r8i1p1_20260101-20501231.nc' +
-                                                           'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/pr_day_EC-EARTH_rcp26_r8i1p1_20510101-20751231.nc' +
-                                                           'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/pr_day_EC-EARTH_rcp26_r8i1p1_20760101-21001231.nc')
+                                                default = 'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/pr_day_EC-EARTH_rcp26_r8i1p1_20060101-20251231.nc,' +
+                                                           'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/pr_day_EC-EARTH_rcp26_r8i1p1_20260101-20501231.nc,' +
+                                                           'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/pr_day_EC-EARTH_rcp26_r8i1p1_20510101-20751231.nc,' +
+                                                           'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/pr_day_EC-EARTH_rcp26_r8i1p1_20760101-21001231.nc,')
+
+        self.timeRangeBasePeriodIn = self.addLiteralInput(identifier = 'timeRangeBasePeriod', 
+                                                title = 'Time range of base (reference) period, e.g. 1961-01-01/1990-12-31',
+                                                type="String",
+                                                default = None)
 
                                                 
         self.varNameTemperatureIn = self.addLiteralInput(identifier = 'varNameTemperature',
@@ -67,10 +86,7 @@ class ProcessCompoundIndice(WPSProcess):
                                                 type="String",
                                                 default = 'pr')
         
-        self.timeRangeBasePeriodIn = self.addLiteralInput(identifier = 'timeRangeBasePeriod', 
-                                                title = 'Time range of base (reference) period, e.g. 1961-01-01/1990-12-31',
-                                                type="String",
-                                                default = None)
+
         
         
         self.filesStudyPeriodTemperatureIn = self.addLiteralInput(identifier = 'filesStudyPeriodTemperature',
@@ -79,10 +95,10 @@ class ProcessCompoundIndice(WPSProcess):
                                                 type=type("S"),
                                                 minOccurs=0,
                                                 maxOccurs=1024,
-                                                default = 'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tas_day_EC-EARTH_rcp26_r8i1p1_20060101-20251231.nc' +
-                                                           'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tas_day_EC-EARTH_rcp26_r8i1p1_20260101-20501231.nc' +
-                                                           'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tas_day_EC-EARTH_rcp26_r8i1p1_20510101-20751231.nc' +
-                                                           'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tas_day_EC-EARTH_rcp26_r8i1p1_20760101-21001231.nc')
+                                                default = 'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tas_day_EC-EARTH_rcp26_r8i1p1_20060101-20251231.nc,' +
+                                                           'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tas_day_EC-EARTH_rcp26_r8i1p1_20260101-20501231.nc,' +
+                                                           'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tas_day_EC-EARTH_rcp26_r8i1p1_20510101-20751231.nc,' +
+                                                           'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tas_day_EC-EARTH_rcp26_r8i1p1_20760101-21001231.nc,')
 
         self.filesStudyPeriodPrecipitationIn = self.addLiteralInput(identifier = 'filesStudyPeriodPrecipitation',
                                                 title = 'Input netCDF files list (study period), daily precipitation amount',
@@ -90,22 +106,23 @@ class ProcessCompoundIndice(WPSProcess):
                                                 type=type("S"),
                                                 minOccurs=0,
                                                 maxOccurs=1024,
-                                                default = 'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/pr_day_EC-EARTH_rcp26_r8i1p1_20060101-20251231.nc' +
-                                                           'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/pr_day_EC-EARTH_rcp26_r8i1p1_20260101-20501231.nc' +
-                                                           'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/pr_day_EC-EARTH_rcp26_r8i1p1_20510101-20751231.nc' +
-                                                           'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/pr_day_EC-EARTH_rcp26_r8i1p1_20760101-21001231.nc')
+                                                default = 'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/pr_day_EC-EARTH_rcp26_r8i1p1_20060101-20251231.nc,' +
+                                                           'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/pr_day_EC-EARTH_rcp26_r8i1p1_20260101-20501231.nc,' +
+                                                           'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/pr_day_EC-EARTH_rcp26_r8i1p1_20510101-20751231.nc,' +
+                                                           'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/pr_day_EC-EARTH_rcp26_r8i1p1_20760101-21001231.nc,')
         
         
-        self.indiceNameIn = self.addLiteralInput(identifier = 'indiceName',
-                                                title = 'Indice name',
+        self.timeRangeStudyPeriodIn = self.addLiteralInput(identifier = 'timeRangeStudyPeriod', 
+                                                title = 'Time range, e.g. 2010-01-01/2012-12-31',
                                                 type="String",
-                                                default = 'CW')
-        self.indiceNameIn.values = ['CD', 'CW', 'WD', 'WW']
+                                                default = None)
         
         self.leapNonLeapYearsIn = self.addLiteralInput(identifier = 'leapNonLeapYears',
-                                                title = 'Leap or non-leap years',
-                                                type="String",
-                                                default = False)
+                                               title = 'Method for computing a percentile value for the calendar day of February 29th',
+                                               type="String",
+                                               default = "take all years (leap + non-leap)")
+        self.leapNonLeapYearsIn.values = ["take all years (leap + non-leap)","take only leap years"]
+        
         
         self.outputFileNamePercentilesTemperatureIn = self.addLiteralInput(identifier = 'outputFileNamePercentilesTemperature', 
                                                 title = 'Name of output file to save the dictionary with percentile values (temperature)',
@@ -118,15 +135,9 @@ class ProcessCompoundIndice(WPSProcess):
                                                 default = './percentiles_precipitation.pkl')
                 
                 
-        self.sliceModeIn = self.addLiteralInput(identifier = 'sliceMode',
-                                                title = 'Slice mode (temporal grouping to applay for calculations)',
-                                                default = 'year')
-        self.sliceModeIn.values = ["year","month","ONDJFM","AMJJAS","DJF","MAM","JJA","SON"]
 
-        self.timeRangeStudyPeriodIn = self.addLiteralInput(identifier = 'timeRangeStudyPeriod', 
-                                                title = 'Time range, e.g. 2010-01-01/2012-12-31',
-                                                type="String",
-                                                default = None)
+
+
         
         self.outputFileNameIn = self.addLiteralInput(identifier = 'outputFileName', 
                                                 title = 'Name of output netCDF file',
@@ -142,8 +153,8 @@ class ProcessCompoundIndice(WPSProcess):
         
         
         
-    #def callback(self,message,percentage):
-    #    self.status.set("%s" % str(message),str(percentage));        
+    def callback(self,message,percentage):
+        self.status.set("%s" % str(message),str(percentage));        
                                 
                                 
     def execute(self):
@@ -188,8 +199,6 @@ class ProcessCompoundIndice(WPSProcess):
         if(level == "None"):
             level = None
             
-        if (leap_nonleap_years == 'False'):
-            leap_nonleap_years = False
           
         if (time_range_base_period == "None"):
             time_range_base_period = None
@@ -205,7 +214,15 @@ class ProcessCompoundIndice(WPSProcess):
             startdate = dateutil.parser.parse(time_range_study_period.split("/")[0])
             stopdate  = dateutil.parser.parse(time_range_study_period.split("/")[1])
             time_range_study_period = [startdate,stopdate]
-            
+        
+        
+        if leap_nonleap_years == "take all years (leap + non-leap)":
+            leap_nonleap_years = False
+        else:
+            leap_nonleap_years = True        
+        
+        
+        
         
         home = expanduser("~")
         
@@ -214,15 +231,15 @@ class ProcessCompoundIndice(WPSProcess):
         pathToAppendToOutputDirectory = "/WPS_"+self.identifier+"_" + datetime.now().strftime("%Y%m%dT%H%M%SZ")
         
         """ URL output path """
-        fileOutURL  = os.environ['POF_OUTPUT_URL']  + pathToAppendToOutputDirectory+"/"
+        fileOutURL  = os.environ['PORTAL_OUTPUT_URL']  + pathToAppendToOutputDirectory+"/"
         
         """ Internal output path"""
-        fileOutPath = os.environ['POF_OUTPUT_PATH']  + pathToAppendToOutputDirectory +"/"
+        fileOutPath = os.environ['PORTAL_OUTPUT_PATH']  + pathToAppendToOutputDirectory +"/"
 
         """ Create output directory """
         mkdir_p(fileOutPath)
         
-        self.callback("Processing input list: "+str(files),0)  
+        self.status.set("Processing input lists: " + str(in_files_study_period_t) +  " " + str(in_files_study_period_p), 0)  
 
 
         

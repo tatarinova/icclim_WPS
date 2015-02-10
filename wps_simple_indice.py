@@ -24,6 +24,29 @@ class ProcessSimpleIndice(WPSProcess):
                             storeSupported = True,
                             statusSupported = True,
                             grassLocation =False)
+
+
+        self.indiceNameIn = self.addLiteralInput(identifier = 'indiceName',
+                                               title = 'Indice name',
+                                               type="String",
+                                               default = 'SU')        
+        self.indiceNameIn.values = ["TG","TX","TN","TXx","TXn","TNx","TNn","SU","TR","CSU","GD4","FD","CFD","ID","HD17","CDD","CWD","RR","RR1","SDII","R10mm","R20mm","RX1day","RX5day","SD","SD1","SD5cm","SD50cm"]
+
+
+        self.sliceModeIn = self.addLiteralInput(identifier = 'sliceMode',
+                                              title = 'Slice mode (temporal grouping to apply for calculations)',
+                                              type="String",
+                                              default = 'year')
+        self.sliceModeIn.values = ["year","month","ONDJFM","AMJJAS","DJF","MAM","JJA","SON"]
+
+
+        self.thresholdIn = self.addLiteralInput(identifier = 'threshold', 
+                                               title = 'Threshold(s) for certain indices (SU, CSU and TR). Can be a comma separated list, e.g. 20,21,22',
+                                               type=type("S"),
+                                               minOccurs=0,
+                                               maxOccurs=1024,
+                                               default = None)
+
        
         self.filesIn = self.addLiteralInput(identifier = 'files',
                                                title = 'Input netCDF files list',
@@ -42,18 +65,6 @@ class ProcessSimpleIndice(WPSProcess):
                                                type="String",
                                                default = 'tasmax')
         
-        self.indiceNameIn = self.addLiteralInput(identifier = 'indiceName',
-                                               title = 'Indice name',
-                                               type="String",
-                                               default = 'SU')
-        
-        self.indiceNameIn.values = ["TG","TX","TN","TXx","TXn","TNx","TNn","SU","TR","CSU","GD4","FD","CFD","ID","HD17","CDD","CWD","RR","RR1","SDII","R10mm","R20mm","RX1day","RX5day","SD","SD1","SD5cm","SD50cm"]
-        
-        self.sliceModeIn = self.addLiteralInput(identifier = 'sliceMode',
-                                              title = 'Slice mode (temporal grouping to apply for calculations)',
-                                              type="String",
-                                              default = 'year')
-        self.sliceModeIn.values = ["year","month","ONDJFM","AMJJAS","DJF","MAM","JJA","SON"]
 
         self.timeRangeIn = self.addLiteralInput(identifier = 'timeRange', 
                                                title = 'Time range, e.g. 2010-01-01/2012-12-31',
@@ -65,12 +76,6 @@ class ProcessSimpleIndice(WPSProcess):
                                                type="String",
                                                default = 'out_icclim.nc')
         
-        self.thresholdIn = self.addLiteralInput(identifier = 'threshold', 
-                                               title = 'Threshold(s) for certain indices. Can be a comma separated list, e.g. 20,21,22',
-                                               type=type("S"),
-                                               minOccurs=0,
-                                               maxOccurs=1024,
-                                               default = None)
         
         self.NLevelIn = self.addLiteralInput(identifier = 'NLevel', 
                                                title = 'Number of level (if 4D variable)',
@@ -79,8 +84,9 @@ class ProcessSimpleIndice(WPSProcess):
 
         self.opendapURL = self.addLiteralOutput(identifier = "opendapURL",title = "opendapURL");   
         
-    #def callback(self,message,percentage):
-    #    self.status.set("%s" % str(message),str(percentage));
+    def callback(self,message,percentage):
+        self.status.set("%s" % str(message),str(percentage));
+
     
     def execute(self):
         
@@ -100,6 +106,7 @@ class ProcessSimpleIndice(WPSProcess):
         
         if(level == "None"):
             level = None
+            
           
         if(time_range == "None"):
             time_range = None
@@ -107,6 +114,7 @@ class ProcessSimpleIndice(WPSProcess):
             startdate = dateutil.parser.parse(time_range.split("/")[0])
             stopdate  = dateutil.parser.parse(time_range.split("/")[1])
             time_range = [startdate,stopdate]
+            
           
         if(thresholdlist != "None"):
             if(thresholdlist[0]!="None"):
@@ -122,16 +130,16 @@ class ProcessSimpleIndice(WPSProcess):
         pathToAppendToOutputDirectory = "/WPS_"+self.identifier+"_" + datetime.now().strftime("%Y%m%dT%H%M%SZ")
         
         """ URL output path """
-        fileOutURL  = os.environ['POF_OUTPUT_URL']  + pathToAppendToOutputDirectory+"/"
+        fileOutURL  = os.environ['PORTAL_OUTPUT_URL']  + pathToAppendToOutputDirectory+"/"
         
         """ Internal output path"""
-        fileOutPath = os.environ['POF_OUTPUT_PATH']  + pathToAppendToOutputDirectory +"/"
+        fileOutPath = os.environ['PORTAL_OUTPUT_PATH']  + pathToAppendToOutputDirectory +"/"
 
         """ Create output directory """
         mkdir_p(fileOutPath)
         
-        self.callback("Processing input list: "+str(files),0)
-        
+
+        self.status.set("Processing input list: "+str(files),0)
         
         icclim.indice(indice_name=indice_name,
                         in_files=files,

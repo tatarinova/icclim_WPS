@@ -23,6 +23,20 @@ class ProcessMultivarIndice(WPSProcess):
                             storeSupported = True,
                             statusSupported = True,
                             grassLocation =False)
+
+
+        self.indiceNameIn = self.addLiteralInput(identifier = 'indiceName',
+                                               title = 'Indice name',
+                                               type="String",
+                                               default = 'ETR')
+        self.indiceNameIn.values = ['DTR', 'ETR', 'vDTR']
+        
+        self.sliceModeIn = self.addLiteralInput(identifier = 'sliceMode',
+                                               title = 'Slice mode (temporal grouping to applay for calculations)',
+                                               type="String",
+                                               default = 'year')
+        self.sliceModeIn.values = ["year","month","ONDJFM","AMJJAS","DJF","MAM","JJA","SON"]
+
        
         self.filesTasmaxIn = self.addLiteralInput(identifier = 'filesTasmax',
                                                title = 'Input netCDF files list (daily max temperature)',
@@ -30,10 +44,10 @@ class ProcessMultivarIndice(WPSProcess):
                                                type=type("S"),
                                                minOccurs=0,
                                                maxOccurs=1024,                                               
-                                               default = 'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tasmax_day_EC-EARTH_rcp26_r8i1p1_20060101-20251231.nc' +
-                                                          'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tasmax_day_EC-EARTH_rcp26_r8i1p1_20260101-20501231.nc' +
-                                                          'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tasmax_day_EC-EARTH_rcp26_r8i1p1_20510101-20751231.nc' +
-                                                          'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tasmax_day_EC-EARTH_rcp26_r8i1p1_20760101-21001231.nc')
+                                               default = 'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tasmax_day_EC-EARTH_rcp26_r8i1p1_20060101-20251231.nc,' +
+                                                          'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tasmax_day_EC-EARTH_rcp26_r8i1p1_20260101-20501231.nc,' +
+                                                          'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tasmax_day_EC-EARTH_rcp26_r8i1p1_20510101-20751231.nc,' +
+                                                          'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tasmax_day_EC-EARTH_rcp26_r8i1p1_20760101-21001231.nc,')
         
                                                 
         self.varTasmaxIn = self.addLiteralInput(identifier = 'varTasmax',
@@ -48,10 +62,10 @@ class ProcessMultivarIndice(WPSProcess):
                                                type=type("S"),
                                                minOccurs=0,
                                                maxOccurs=1024,      
-                                               default = 'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tasmin_day_EC-EARTH_rcp26_r8i1p1_20060101-20251231.nc' +
-                                                          'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tasmin_day_EC-EARTH_rcp26_r8i1p1_20260101-20501231.nc' +
-                                                          'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tasmin_day_EC-EARTH_rcp26_r8i1p1_20510101-20751231.nc' +
-                                                          'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tasmin_day_EC-EARTH_rcp26_r8i1p1_20760101-21001231.nc')
+                                               default = 'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tasmin_day_EC-EARTH_rcp26_r8i1p1_20060101-20251231.nc,' +
+                                                          'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tasmin_day_EC-EARTH_rcp26_r8i1p1_20260101-20501231.nc,' +
+                                                          'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tasmin_day_EC-EARTH_rcp26_r8i1p1_20510101-20751231.nc,' +
+                                                          'http://opendap.knmi.nl/knmi/thredds/dodsC/IS-ENES/TESTSETS/tasmin_day_EC-EARTH_rcp26_r8i1p1_20760101-21001231.nc,')
         
                                                 
         self.varTasminIn = self.addLiteralInput(identifier = 'varTasmin',
@@ -59,17 +73,7 @@ class ProcessMultivarIndice(WPSProcess):
                                                type="String",
                                                default = 'tasmin')
         
-        self.indiceNameIn = self.addLiteralInput(identifier = 'indiceName',
-                                               title = 'Indice name',
-                                               type="String",
-                                               default = 'ETR')
-        self.indiceNameIn.values = ['DTR', 'ETR', 'vDTR']
-        
-        self.sliceModeIn = self.addLiteralInput(identifier = 'sliceMode',
-                                               title = 'Slice mode (temporal grouping to applay for calculations)',
-                                               type="String",
-                                               default = 'year')
-        self.sliceModeIn.values = ["year","month","ONDJFM","AMJJAS","DJF","MAM","JJA","SON"]
+
 
         self.timeRangeIn = self.addLiteralInput(identifier = 'timeRange', 
                                                title = 'Time range, e.g. 2010-01-01/2012-12-31',
@@ -89,8 +93,8 @@ class ProcessMultivarIndice(WPSProcess):
         self.opendapURL = self.addLiteralOutput(identifier = "opendapURL",title = "opendapURL");
         
         
-    #def callback(self,message,percentage):
-    #    self.status.set("%s" % str(message),str(percentage));    
+    def callback(self,message,percentage):
+        self.status.set("%s" % str(message),str(percentage));    
 
     def execute(self):
         
@@ -133,15 +137,15 @@ class ProcessMultivarIndice(WPSProcess):
         pathToAppendToOutputDirectory = "/WPS_"+self.identifier+"_" + datetime.now().strftime("%Y%m%dT%H%M%SZ")
         
         """ URL output path """
-        fileOutURL  = os.environ['POF_OUTPUT_URL']  + pathToAppendToOutputDirectory+"/"
+        fileOutURL  = os.environ['PORTAL_OUTPUT_URL']  + pathToAppendToOutputDirectory+"/"
         
         """ Internal output path"""
-        fileOutPath = os.environ['POF_OUTPUT_PATH']  + pathToAppendToOutputDirectory +"/"
+        fileOutPath = os.environ['PORTAL_OUTPUT_PATH']  + pathToAppendToOutputDirectory +"/"
 
         """ Create output directory """
         mkdir_p(fileOutPath)
         
-        self.callback("Processing input list: "+str(files),0)
+        self.status.set("Processing input lists: " + str(files_tasmax) + " " + str(files_tasmin), 0)
         
         
         
@@ -150,7 +154,7 @@ class ProcessMultivarIndice(WPSProcess):
             var_name=var_tasmax,            
             slice_mode=slice_mode,
             time_range=time_range,
-            out_file=out_file_name, 
+            out_file=fileOutPath+out_file_name, 
             N_lev=level,            
             transfer_limit_Mbytes=transfer_limit_Mb,
             callback=callback,
